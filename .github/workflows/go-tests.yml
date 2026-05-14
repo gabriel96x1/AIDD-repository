@@ -1,0 +1,59 @@
+name: Go Unit Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'aidd/mcp/**'
+      - '.github/workflows/go-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'aidd/mcp/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        go-version: ['1.26.3']
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.go-version }}
+        cache: true
+        cache-dependency-path: aidd/mcp/go.sum
+    
+    - name: Download dependencies
+      working-directory: aidd/mcp
+      run: go mod download
+    
+    - name: Verify module integrity
+      working-directory: aidd/mcp
+      run: go mod verify
+    
+    - name: Run unit tests with coverage
+      working-directory: aidd/mcp
+      run: go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
+    
+    - name: Display test results
+      working-directory: aidd/mcp
+      run: go tool cover -func=coverage.out
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: ./aidd/mcp/coverage.out
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+    
+    - name: Run benchmarks
+      working-directory: aidd/mcp
+      run: go test -bench=. -benchmem ./tools

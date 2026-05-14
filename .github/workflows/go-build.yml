@@ -1,0 +1,47 @@
+name: Go Build Verification
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'aidd/mcp/**'
+      - '.github/workflows/go-build.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'aidd/mcp/**'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        go-version: ['1.26.3']
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ matrix.go-version }}
+        cache: true
+        cache-dependency-path: aidd/mcp/go.sum
+    
+    - name: Build main executable
+      working-directory: aidd/mcp
+      run: go build -v -o aidd-mcp .
+    
+    - name: Verify executable
+      working-directory: aidd/mcp
+      shell: bash
+      run: |
+        if [ -f aidd-mcp ] || [ -f aidd-mcp.exe ]; then
+          echo "Build successful: executable created"
+        else
+          echo "Build failed: executable not found"
+          exit 1
+        fi
