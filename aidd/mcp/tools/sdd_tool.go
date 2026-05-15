@@ -124,12 +124,12 @@ func HandleGetProjectSkill(
 
 type SetupSDDInput struct {
 	ProjectName  string `json:"project_name"    jsonschema:"The name of the project (e.g. 'my-app'). The docs repo will be created as 'my-app-agent-docs'."`
-	DocsBasePath string `json:"docs_base_path"  jsonschema:"Absolute path to the directory where the -agent-docs repo will be created (e.g. '/Users/you/projects')."`
+	DocsBasePath string `json:"docs_base_path"  jsonschema:"Relative path to the directory where the -agent-docs repo will be created, relative to main_repo_path (e.g. '..' for parent directory)."`
 	MainRepoPath string `json:"main_repo_path"  jsonschema:"Absolute path to the main project repo where AGENTS.md and CLAUDE.md will be written."`
 }
 
 type SetupSDDOutput struct {
-	DocsRepoPath string `json:"docs_repo_path" jsonschema:"Absolute path to the created -agent-docs repo."`
+	DocsRepoPath string `json:"docs_repo_path" jsonschema:"Relative path to the created -agent-docs repo, relative to main_repo_path."`
 	AgentsMDPath string `json:"agents_md_path" jsonschema:"Absolute path to the AGENTS.md written in the main repo."`
 	Summary      string `json:"summary"        jsonschema:"Human-readable summary of what was created."`
 }
@@ -144,7 +144,7 @@ func HandleSetupSDDProject(
 		return nil, SetupSDDOutput{}, fmt.Errorf("project_name, docs_base_path, and main_repo_path are all required")
 	}
 
-	docsRepoPath := filepath.Join(input.DocsBasePath, input.ProjectName+"-agent-docs")
+	docsRepoPath := filepath.Join(input.MainRepoPath, input.DocsBasePath, input.ProjectName+"-agent-docs")
 
 	// 1. Create directory structure
 	for _, d := range []string{
@@ -202,7 +202,7 @@ func HandleSetupSDDProject(
 	}
 
 	return nil, SetupSDDOutput{
-		DocsRepoPath: docsRepoPath,
+		DocsRepoPath: filepath.Join(input.DocsBasePath, input.ProjectName+"-agent-docs"),
 		AgentsMDPath: agentsMDPath,
 		Summary: fmt.Sprintf(
 			"SDD setup complete.\n\nDocs repo:  %s\nAGENTS.md:  %s\nCLAUDE.md:  %s\n\n"+
