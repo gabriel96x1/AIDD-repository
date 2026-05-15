@@ -399,7 +399,10 @@ Then identify which skills apply to the task and load them via:
 `+"`get_project_skill(main_repo_path=\"<repo>\", skill_name=\"<skill>\")`"+`
 
 If any file is missing or contains unfilled `+"`{{PLACEHOLDER}}`"+` values,
-stop and notify the human before proceeding.
+STOP and NOTIFY the human before proceeding.
+
+ASK for clarifications on the mission, tech stack, roadmap, or conventions if any ambiguity exists. 
+NEVER assume or guess on these — they are the source of truth for your work.
 
 ---
 
