@@ -19,15 +19,30 @@ func main() {
 		Version: "1.0.0",
 	}, nil)
 
-	mcp.AddTool(server, &mcp.Tool{
-		Name:        "list_available_sdd_conventions",
-		Description: "Dynamically scans the server files and lists all languages/frameworks that currently have coding convention guidelines configured.",
-	}, tools.HandleListSDDConventions)
+	// --- SDD project tools ---
 
 	mcp.AddTool(server, &mcp.Tool{
-		Name:        "get_sdd_coding_conventions",
-		Description: "Retrieves the specific markdown style guide content for a requested language or framework.",
-	}, tools.HandleGetSDDConventions)
+		Name: "setup_sdd_project",
+		Description: "One-time setup: creates the <project>-agent-docs repo with the full SDD folder structure and template files, " +
+			"then writes AGENTS.md and CLAUDE.md into the main project repo pointing to the docs repo path.",
+	}, tools.HandleSetupSDDProject)
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name: "write_doc",
+		Description: "Writes or updates a markdown spec artifact in the agent-docs repo " +
+			"(spec.md, design.md, tasks.md, evidence.md, or any constitution file), " +
+			"then commits and pushes. Acquires a lockfile to prevent concurrent write conflicts.",
+	}, tools.HandleWriteDoc)
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "get_doc",
+		Description: "Reads any markdown file from the agent-docs repo by relative path. Pulls latest before reading.",
+	}, tools.HandleGetDoc)
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "list_docs",
+		Description: "Lists all markdown files in the agent-docs repo, optionally filtered by a path prefix (e.g. '.specs/my-feature').",
+	}, tools.HandleListDocs)
 
 	// stdio: el IDE levanta este binario como subprocess y habla JSON-RPC por stdin/stdout
 	if err := server.Run(context.Background(), &mcp.StdioTransport{}); err != nil {
