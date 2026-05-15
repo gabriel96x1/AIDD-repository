@@ -46,7 +46,7 @@
 - {{edge case from spec.md#edge-cases}}
 
 **Done checklist:**
-- [ ] Code written and follows conventions in `_constitution/coding-conventions/index.md`
+- [ ] Code written and follows conventions in `_constitution/coding-conventions-index.md`
 - [ ] Tests written and passing
 - [ ] Criterion AC-1 verifiably satisfied
 - [ ] Committed and pushed

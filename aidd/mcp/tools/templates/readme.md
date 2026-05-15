@@ -31,4 +31,4 @@ Humans can browse and edit directly — every file is plain Markdown.
 
 1. Create `.specs/<feature-slug>/` folder.
 2. Use the templates in `.specs/_feature-template/` as starting point.
-3. Follow the four-phase SDD loop: spec → design → tasks → evidence.
+3. EXTRICTLY Follow the four-phase SDD loop: spec → design → tasks → evidence.

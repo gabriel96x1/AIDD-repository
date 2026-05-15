@@ -4,16 +4,11 @@ import (
 	"aidd_mcp/tools"
 	"context"
 	"log"
-	"os"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
 func main() {
-	if err := os.MkdirAll(tools.ConventionsDir, os.ModePerm); err != nil {
-		log.Fatalf("Failed to create conventions directory: %v", err)
-	}
-
 	server := mcp.NewServer(&mcp.Implementation{
 		Name:    "aidd-mcp-server",
 		Version: "1.0.0",
@@ -26,6 +21,13 @@ func main() {
 		Description: "One-time setup: creates the <project>-agent-docs repo with the full SDD folder structure and template files, " +
 			"then writes AGENTS.md and CLAUDE.md into the main project repo pointing to the docs repo path.",
 	}, tools.HandleSetupSDDProject)
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name: "get_project_skill",
+		Description: "Loads a project-local Agent Skill (SKILL.md) from supported agent directories " +
+			"such as .claude/skills, .cursor/skills, .agents/skills, or .github/skills. " +
+			"Returns the full markdown content of the matching skill.",
+	}, tools.HandleGetProjectSkill)
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name: "write_doc",

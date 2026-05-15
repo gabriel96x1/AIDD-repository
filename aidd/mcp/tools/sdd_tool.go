@@ -61,6 +61,64 @@ func renderTemplate(tmpl, projectName string) string {
 }
 
 // ---------------------------------------------------------------------------
+// Tool: get_project_skill
+// ---------------------------------------------------------------------------
+
+type GetProjectSkillInput struct {
+	MainRepoPath string `json:"main_repo_path" jsonschema:"Absolute path to the main project repo."`
+	SkillName    string `json:"skill_name"     jsonschema:"Name of the skill folder (e.g. 'react-native', 'typescript')."`
+}
+
+type GetProjectSkillOutput struct {
+	Content string `json:"content"  jsonschema:"Full SKILL.md content."`
+	FoundAt string `json:"found_at" jsonschema:"Relative path where the skill was found."`
+}
+
+func HandleGetProjectSkill(
+	ctx context.Context,
+	req *mcp.CallToolRequest,
+	input GetProjectSkillInput,
+) (*mcp.CallToolResult, GetProjectSkillOutput, error) {
+
+	if input.MainRepoPath == "" || input.SkillName == "" {
+		return nil, GetProjectSkillOutput{}, fmt.Errorf("main_repo_path and skill_name are required")
+	}
+
+	// Supported agent skill locations (priority order)
+	candidates := []string{
+		filepath.Join(".claude", "skills", input.SkillName, "SKILL.md"),
+		filepath.Join(".cursor", "skills", input.SkillName, "SKILL.md"),
+		filepath.Join(".agents", "skills", input.SkillName, "SKILL.md"),
+		filepath.Join(".github", "skills", input.SkillName, "SKILL.md"),
+	}
+
+	for _, rel := range candidates {
+		abs := filepath.Join(input.MainRepoPath, rel)
+
+		data, err := os.ReadFile(abs)
+		if err == nil {
+			return nil, GetProjectSkillOutput{
+				Content: string(data),
+				FoundAt: rel,
+			}, nil
+		}
+
+		if !os.IsNotExist(err) {
+			return nil, GetProjectSkillOutput{}, fmt.Errorf(
+				"failed reading skill at %s: %w",
+				rel,
+				err,
+			)
+		}
+	}
+
+	return nil, GetProjectSkillOutput{}, fmt.Errorf(
+		"skill '%s' not found in any supported agent directory",
+		input.SkillName,
+	)
+}
+
+// ---------------------------------------------------------------------------
 // Tool: setup_sdd_project
 // ---------------------------------------------------------------------------
 
@@ -108,7 +166,7 @@ func HandleSetupSDDProject(
 		{".specs/_constitution/mission.md", tmplMission},
 		{".specs/_constitution/tech-stack.md", tmplTechStack},
 		{".specs/_constitution/roadmap.md", tmplRoadmap},
-		{".specs/_constitution/coding-conventions/index.md", tmplConventionsIndex},
+		{".specs/_constitution/coding-conventions-index.md", tmplConventionsIndex},
 		{".specs/_feature-template/spec.md", tmplSpec},
 		{".specs/_feature-template/design.md", tmplDesign},
 		{".specs/_feature-template/tasks.md", tmplTasks},
@@ -323,7 +381,7 @@ All SDD artifacts (specs, designs, tasks, evidence, constitution) live in a
 | `+"`get_doc`"+` | Read any spec, constitution, or convention file |
 | `+"`write_doc`"+` | Create or update any spec artifact |
 | `+"`list_docs`"+` | Discover what specs and docs exist |
-| `+"`get_sdd_coding_conventions`"+` | Fetch a coding convention by language/framework key |
+| `+"`get_project_skill`"+` | Load project-local Agent Skills (Claude, Cursor, Copilot, etc.) |
 
 ---
 
@@ -334,7 +392,11 @@ Read these files via `+"`get_doc`"+` before producing any artifact or code:
 1. `+"`"+`.specs/_constitution/mission.md`+"`"+`
 2. `+"`"+`.specs/_constitution/tech-stack.md`+"`"+`
 3. `+"`"+`.specs/_constitution/roadmap.md`+"`"+`
-4. `+"`"+`.specs/_constitution/coding-conventions/index.md`+"`"+`
+4. `+"`"+`.specs/_constitution/coding-conventions-index.md`+"`"+`
+
+Then identify which skills apply to the task and load them via:
+
+`+"`get_project_skill(main_repo_path=\"<repo>\", skill_name=\"<skill>\")`"+`
 
 If any file is missing or contains unfilled `+"`{{PLACEHOLDER}}`"+` values,
 stop and notify the human before proceeding.
@@ -343,10 +405,10 @@ stop and notify the human before proceeding.
 
 ## The SDD Contract
 
-- NEVER write implementation code without a reviewed `+"`spec.md`"+`.
+- NEVER write implementation code without a reviewed `+"`spec.md`"+` AND `+"`design.md`"+`..
 - NEVER skip or merge phases: Specify → Plan → Execute → Verify.
 - At every gate (G1–G4), stop and state:
-  `+`"`Gate G[N] reached — awaiting human review of [artifact path].`"`+`
+  "Gate G[N] reached — awaiting human review of [artifact path]."
 - Do not proceed past a gate without explicit human approval.
 
 ## Governance Gates
@@ -411,7 +473,7 @@ Access via: `+"`get_doc`"+`, `+"`write_doc`"+`, `+"`list_docs`"+`.
 
 - Use extended thinking before any spec artifact or architectural decision.
 - Subagents must also read `+"`AGENTS.md`"+` before acting.
-- Gate phrasing: `+`"`Gate G[N] reached — [path] is ready for your review.`"`+`
+- Gate phrasing: "Gate G[N] reached — [path] is ready for your review."
 - One clarifying question at a time, never batched.
 `, projectName, docsRepoPath)
 }
