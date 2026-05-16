@@ -8,8 +8,8 @@ echo "▶ Cloning aidd-mcp..."
 git clone --depth 1 "$REPO" "$TMP_DIR"
 
 echo "▶ Building binary..."
-cd "$TMP_DIR"
-go build -o "$OLDPWD/aidd-mcp" ./...
+cd "$TMP_DIR/aidd/mcp"
+go build -o "$OLDPWD/aidd-mcp" .
 
 echo "▶ Cleaning up..."
 rm -rf "$TMP_DIR"
