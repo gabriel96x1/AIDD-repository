@@ -5,7 +5,7 @@ Un MCP para correr en local, que incluye las bases para hacer **Spec Driven Deve
 
 Copia, pega y corre el siguiente comando en tu terminal:
 ```
-curl -fsSL https://raw.githubusercontent.com/gabriel96x1/AIDD-repository/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/gabriel96x1/AIDD-repository/master/install.sh | bash
 ```
 
 Para las coding conventions usar en el repo del proyecto la herramienta de Autoskill:
