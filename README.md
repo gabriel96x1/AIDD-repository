@@ -1,5 +1,5 @@
 # AIDD-repository
-Un MCP para correr en local, que incluye las bases para hacer **Spec Driven Development** seguro de forma y agnostica ( **sin vendor lock-in** ), permitiendo cambiar de coding agent en cualquier momento sin perder tu progreso o sufrir tenidiendo que hacer un setup completo al cambiar ( **Bueno, solo agregar el config del MCP UwU** ).
+Un MCP para correr en local, que incluye las bases para hacer **Spec Driven Development** seguro y agnostico ( **sin vendor lock-in** ), permitiendo cambiar de coding agent en cualquier momento sin perder tu progreso o sufrir tenidiendo que hacer un setup completo al cambiar ( **Bueno, solo agregar el config del MCP UwU** ).
 
 ### Como instalar
 
@@ -30,8 +30,9 @@ En el root de tu proyecto ve a .vscode/mcp.json y pega lo siguiente:
 
 ### Como usar el MCP para SDD:
 
-[!WARNING]
-> Para hacer setup de tu proyecto para trabajar con esta herramiente de SDD debes comenzar con el siguiente PROMPT: 
+## ---> IMPORTANTE <---
+Para hacer setup de tu proyecto para trabajar con esta herramiente de SDD debes comenzar con el siguiente PROMPT: 
+
 ```
 Usando el mcp de aidd-server haz setup de este proyecto para trabajar con Spec Driven Development"
 ```
