@@ -17,4 +17,13 @@ rm -rf "$TMP_DIR"
 echo "✓ Done. Binary ready at: $(pwd)/aidd-mcp-server"
 echo ""
 echo "Add to your agent's mcp.json:"
-echo "  \"aidd-mcp\": { \"command\": \"$(pwd)/aidd-mcp-server\" }"
+echo " {
+	"servers": {
+		"aidd-server": {
+			"type": "stdio",
+			"command": "./aidd-mcp",
+			"args": []
+		}
+	},
+	"inputs": []
+}"
