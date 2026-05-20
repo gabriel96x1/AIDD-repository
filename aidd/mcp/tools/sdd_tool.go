@@ -194,16 +194,18 @@ func HandleSetupSDDProject(
 	// 4. Write AGENTS.md and CLAUDE.md into the main repo
 	// These are built dynamically (not embedded) because they contain docsRepoPath,
 	// which is only known at setup time.
+	relDocsRepoPath := filepath.Join(input.DocsBasePath, input.ProjectName+"-agent-docs")
+
 	agentsMDPath := filepath.Join(input.MainRepoPath, "AGENTS.md")
-	if err := os.WriteFile(agentsMDPath, []byte(buildAgentsMD(input.ProjectName, docsRepoPath)), 0644); err != nil {
+	if err := os.WriteFile(agentsMDPath, []byte(buildAgentsMD(input.ProjectName, relDocsRepoPath)), 0644); err != nil {
 		return nil, SetupSDDOutput{}, fmt.Errorf("failed to write AGENTS.md: %w", err)
 	}
 	claudeMDPath := filepath.Join(input.MainRepoPath, "CLAUDE.md")
-	if err := os.WriteFile(claudeMDPath, []byte(buildClaudeMD(input.ProjectName, docsRepoPath)), 0644); err != nil {
+	if err := os.WriteFile(claudeMDPath, []byte(buildClaudeMD(input.ProjectName, relDocsRepoPath)), 0644); err != nil {
 		return nil, SetupSDDOutput{}, fmt.Errorf("failed to write CLAUDE.md: %w", err)
 	}
 	geminiMDPath := filepath.Join(input.MainRepoPath, "GEMINI.md")
-	if err := os.WriteFile(geminiMDPath, []byte(buildGeminiMD(input.ProjectName, docsRepoPath)), 0644); err != nil {
+	if err := os.WriteFile(geminiMDPath, []byte(buildGeminiMD(input.ProjectName, relDocsRepoPath)), 0644); err != nil {
 		return nil, SetupSDDOutput{}, fmt.Errorf("failed to write GEMINI.md: %w", err)
 	}
 
@@ -382,7 +384,7 @@ this repository. Read it fully before taking any action.
 All SDD artifacts (specs, designs, tasks, evidence, constitution) live in a
 **separate repository** accessed via the AIDD MCP server tools.
 
-**Docs repo path:** %s
+**Docs repo path:** %s (relative to main repo; resolve to absolute path before passing to tools)
 
 | Tool | When to use |
 |---|---|
@@ -477,7 +479,7 @@ This project uses Spec-Driven Development (SDD).
 
 Read `+"`AGENTS.md`"+` in full before taking any action.
 
-**Docs repo path:** %s
+**Docs repo path:** %s (relative to main repo; resolve to absolute path before passing to tools)
 Access via: `+"`get_doc`"+`, `+"`write_doc`"+`, `+"`list_docs`"+`.
 
 ## Claude-specific notes
@@ -496,7 +498,7 @@ This project uses Spec-Driven Development (SDD).
 
 Read `+"`AGENTS.md`"+` in full before taking any action.
 
-**Docs repo path:** %s
+**Docs repo path:** %s (relative to main repo; resolve to absolute path before passing to tools)
 Access via: `+"`get_doc`"+`, `+"`write_doc`"+`, `+"`list_docs`"+`.
 
 ## Gemini-specific notes
