@@ -20,7 +20,7 @@ En el root de tu proyecto ve a .vscode/mcp.json y pega lo siguiente:
 	"servers": {
 		"aidd-server": {
 			"type": "stdio",
-			"command": "./aidd-mcp",
+			"command": "./aidd-mcp-server",
 			"args": []
 		}
 	},
