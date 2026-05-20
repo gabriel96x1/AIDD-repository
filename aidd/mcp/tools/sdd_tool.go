@@ -131,6 +131,8 @@ type SetupSDDInput struct {
 type SetupSDDOutput struct {
 	DocsRepoPath string `json:"docs_repo_path" jsonschema:"Relative path to the created -agent-docs repo, relative to main_repo_path."`
 	AgentsMDPath string `json:"agents_md_path" jsonschema:"Absolute path to the AGENTS.md written in the main repo."`
+	CLAUDEMDPath string `json:"claude_md_path" jsonschema:"Absolute path to the CLAUDE.md written in the main repo."`
+	GEMINIMDPath string `json:"gemini_md_path" jsonschema:"Absolute path to the GEMINI.md written in the main repo."`
 	Summary      string `json:"summary"        jsonschema:"Human-readable summary of what was created."`
 }
 
@@ -200,14 +202,20 @@ func HandleSetupSDDProject(
 	if err := os.WriteFile(claudeMDPath, []byte(buildClaudeMD(input.ProjectName, docsRepoPath)), 0644); err != nil {
 		return nil, SetupSDDOutput{}, fmt.Errorf("failed to write CLAUDE.md: %w", err)
 	}
+	geminiMDPath := filepath.Join(input.MainRepoPath, "GEMINI.md")
+	if err := os.WriteFile(geminiMDPath, []byte(buildGeminiMD(input.ProjectName, docsRepoPath)), 0644); err != nil {
+		return nil, SetupSDDOutput{}, fmt.Errorf("failed to write GEMINI.md: %w", err)
+	}
 
 	return nil, SetupSDDOutput{
 		DocsRepoPath: filepath.Join(input.DocsBasePath, input.ProjectName+"-agent-docs"),
 		AgentsMDPath: agentsMDPath,
+		CLAUDEMDPath: claudeMDPath,
+		GEMINIMDPath: geminiMDPath,
 		Summary: fmt.Sprintf(
-			"SDD setup complete.\n\nDocs repo:  %s\nAGENTS.md:  %s\nCLAUDE.md:  %s\n\n"+
+			"SDD setup complete.\n\nDocs repo:  %s\nAGENTS.md:  %s\nCLAUDE.md: %s\nGEMINI.md: %s\n\n"+
 				"Next: fill _constitution/ files using write_doc, starting with mission.md.",
-			docsRepoPath, agentsMDPath, claudeMDPath,
+			docsRepoPath, agentsMDPath, claudeMDPath, geminiMDPath,
 		),
 	}, nil
 }
@@ -473,6 +481,25 @@ Read `+"`AGENTS.md`"+` in full before taking any action.
 Access via: `+"`get_doc`"+`, `+"`write_doc`"+`, `+"`list_docs`"+`.
 
 ## Claude-specific notes
+
+- Use extended thinking before any spec artifact or architectural decision.
+- Subagents must also read `+"`AGENTS.md`"+` before acting.
+- Gate phrasing: "Gate G[N] reached — [path] is ready for your review."
+- One clarifying question at a time, never batched.
+`, projectName, docsRepoPath)
+}
+
+func buildGeminiMD(projectName, docsRepoPath string) string {
+	return fmt.Sprintf(`# Gemini Agent Rules — %s
+
+This project uses Spec-Driven Development (SDD).
+
+Read `+"`AGENTS.md`"+` in full before taking any action.
+
+**Docs repo path:** %s
+Access via: `+"`get_doc`"+`, `+"`write_doc`"+`, `+"`list_docs`"+`.
+
+## Gemini-specific notes
 
 - Use extended thinking before any spec artifact or architectural decision.
 - Subagents must also read `+"`AGENTS.md`"+` before acting.
